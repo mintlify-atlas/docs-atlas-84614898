@@ -1,0 +1,51 @@
+---
+title: "Register a new user account to access OpenPOS"
+description: "Register for OpenPOS by filling in your name, email, username, and password. After a successful registration, you are redirected to the login page."
+---
+
+Before you can use OpenPOS, you need to create a user account. Registration takes less than a minute and only requires a few basic details.
+
+## Registration form
+
+Navigate to `/users/register` to open the registration form. Fill in all five required fields:
+
+| Field | Description |
+|---|---|
+| **Name** | Your display name |
+| **Email** | A valid email address |
+| **Username** | The username you will use to log in |
+| **Password** | Choose a secure password |
+| **Confirm Password** | Re-enter your password to confirm it |
+
+## Validation rules
+
+OpenPOS validates your input before creating the account:
+
+- **Name** — required, cannot be blank
+- **Email** — required, must be a properly formatted email address
+- **Username** — required, cannot be blank
+- **Password** — required, cannot be blank
+- **Confirm Password** — must exactly match the value entered in **Password**
+
+If any field fails validation, the form re-renders with error messages beside the affected fields. Correct the highlighted fields and submit again.
+
+## How to register
+
+<Steps>
+  <Step title="Open the registration page">
+    Navigate to `/users/register` in your browser.
+  </Step>
+  <Step title="Fill in your details">
+    Enter your **Name**, **Email**, **Username**, **Password**, and **Confirm Password**.
+  </Step>
+  <Step title="Submit the form">
+    Click **Submit**. If all fields pass validation, your account is created immediately.
+  </Step>
+  <Step title="Log in">
+    You will see a success message — "You are registered and can now login" — and be redirected to the login page. Enter your new credentials to access the POS dashboard.
+  </Step>
+</Steps>
+
+<Note>
+  Passwords are hashed with bcrypt before being stored. OpenPOS never saves your plain-text password to the database.
+</Note>

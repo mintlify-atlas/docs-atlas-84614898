@@ -1,0 +1,132 @@
+---
+title: "Run OpenPOS locally with Node.js and local MongoDB"
+description: "Set up and run OpenPOS locally using Node.js, a local MongoDB instance, and Gulp for live-reloading development with Browsersync on port 3010."
+---
+
+You can run OpenPOS entirely on your local machine for development and testing. The server starts on port 3000, and Gulp's Browsersync proxy adds live reload on port 3010 by watching your Handlebars templates for changes.
+
+## Prerequisites
+
+Before you start, make sure you have the following installed:
+
+- **Node.js and npm** — [nodejs.org](https://nodejs.org/en/download/package-manager/)
+- **MongoDB** — [docs.mongodb.com/manual/installation](https://docs.mongodb.com/manual/installation/)
+
+## Installation and setup
+
+<Steps>
+  <Step title="Clone the repository">
+    Clone the OpenPOS repository and change into the project directory:
+
+    ```bash
+    git clone https://github.com/kimdj/OpenPOS.git && cd OpenPOS
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    Install all Node.js dependencies defined in `package.json`:
+
+    ```bash
+    npm install
+    ```
+  </Step>
+
+  <Step title="Start MongoDB">
+    Start a local MongoDB instance, pointing it at your data directory:
+
+    ```bash
+    mongod --dbpath /data/db
+    ```
+  </Step>
+
+  <Step title="Switch server.js to a local connection">
+    By default, `server.js` connects to a MongoDB Atlas URI. To use your local instance instead, open `server.js` and swap the connection lines:
+
+    ```javascript
+    // Uncomment this line to use a local MongoDB instance:
+    mongoose.connect('mongodb://localhost/loginapp');
+
+    // Comment out or remove the Atlas block below:
+    // var username = "djk3"
+    // var password = "Da72vid87!"
+    // var uri = "mongodb://" + username + ":" + password + "@...";
+    // mongoose.connect(uri, { useMongoClient: true });
+    ```
+  </Step>
+
+  <Step title="Start the server">
+    Choose how you want to start OpenPOS:
+
+    <CodeGroup>
+
+    ```bash gulp (recommended for development)
+    gulp
+    ```
+
+    ```bash node (minimal, no live reload)
+    node server.js
+    ```
+
+    </CodeGroup>
+
+    <Tip>
+      Use `gulp` during development. It starts the server with nodemon (auto-restarts on file changes) and layers Browsersync on top for live reload without manual refreshes.
+    </Tip>
+  </Step>
+
+  <Step title="Open the app in your browser">
+    Navigate to the app in your browser:
+
+    - **http://localhost:3000** — Express server (direct)
+    - **http://localhost:3010** — Browsersync proxy (live reload)
+
+    <Note>
+      Port 3000 is the Express server. Port 3010 is the Browsersync proxy that forwards to port 3000 — use port 3010 during development to get live reload when templates change.
+    </Note>
+  </Step>
+</Steps>
+
+## How the Gulp tasks work
+
+The `gulpfile.js` defines three tasks that chain together when you run `gulp`:
+
+**`nodemon` task** — Starts `server.js` under nodemon, which restarts the Node process automatically whenever server-side files change:
+
+```javascript
+gulp.task('nodemon', function (cb) {
+  var callbackCalled = false;
+  return nodemon({
+    script: './server.js'
+  }).on('start', function () {
+    if (!callbackCalled) {
+      callbackCalled = true;
+      cb();
+    }
+  });
+});
+```
+
+**`browser-sync` task** — Runs after `nodemon` is ready. It creates a proxy in front of `http://localhost:3000` and serves it on port 3010:
+
+```javascript
+var bs1 = browserSync.create("proxy1");
+gulp.task('browser-sync', ['nodemon'], function () {
+  bs1.init({
+    proxy: "http://localhost:3000",
+    port: 3010,
+    ui: {
+      port: 3011
+    },
+    browser: ["google chrome", "safari"],
+    open: false
+  });
+});
+```
+
+**`default` task** — The entry point when you run `gulp`. It depends on `browser-sync` (which depends on `nodemon`) and then watches `./views/*.handlebars` files, triggering a full Browsersync reload whenever a template changes:
+
+```javascript
+gulp.task('default', ['browser-sync'], function () {
+  gulp.watch(["./views/*.handlebars"], reload);
+});
+```

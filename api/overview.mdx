@@ -1,0 +1,51 @@
+---
+title: "OpenPOS REST API: endpoints, auth, and base URL"
+description: "Overview of the OpenPOS REST API: base URL, cookie-based session authentication, JSON vs HTML response formats, and links to product and user endpoints."
+---
+
+OpenPOS exposes a simple REST API for product management and user operations. Product endpoints return JSON; user endpoints return HTML pages or redirects, since they are form-based. Before calling any product endpoint, you must establish an authenticated session by logging in through the user endpoints.
+
+## Base URL
+
+```
+http://localhost:3000
+```
+
+If you have configured a custom host or port via the `PORT` environment variable, substitute that value instead.
+
+## Authentication
+
+OpenPOS uses **cookie-based sessions**, not token-based authentication. The session is created when you log in via `POST /users/login`. Your HTTP client must store and send the session cookie (`connect.sid`) on every subsequent request.
+
+<Note>
+  This API is session-based, not token-based. You must log in first and include the session cookie in all product endpoint requests. Requests to `/productlist` without a valid session will fail.
+</Note>
+
+## Available endpoints
+
+| Group    | Method   | Path                  | Description                        |
+| -------- | -------- | --------------------- | ---------------------------------- |
+| Products | `GET`    | `/productlist`        | List all products for the current user |
+| Products | `POST`   | `/productlist`        | Create a new product               |
+| Products | `DELETE` | `/productlist/:id`    | Delete a product by ID             |
+| Users    | `GET`    | `/users/register`     | Render the registration form       |
+| Users    | `POST`   | `/users/register`     | Create a new user account          |
+| Users    | `GET`    | `/users/login`        | Render the login form              |
+| Users    | `POST`   | `/users/login`        | Authenticate and start a session   |
+| Users    | `GET`    | `/users/logout`       | Destroy the session and log out    |
+
+## Response formats
+
+- **Product endpoints** (`/productlist`) return JSON.
+- **User endpoints** (`/users/*`) return HTML pages or HTTP redirects, as they are driven by server-rendered forms.
+
+## Explore the endpoints
+
+<CardGroup cols={2}>
+  <Card title="Products API" icon="box" href="/api/products">
+    List, create, and delete menu items via `/productlist`.
+  </Card>
+  <Card title="Users API" icon="user" href="/api/users">
+    Register, log in, and log out via `/users/*`.
+  </Card>
+</CardGroup>

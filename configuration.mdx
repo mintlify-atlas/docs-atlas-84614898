@@ -1,0 +1,140 @@
+---
+title: "Configure OpenPOS: database connection and server port"
+description: "Connect OpenPOS to a local MongoDB instance or MongoDB Atlas by editing the connection settings in server.js, and understand the port and Gulp task configuration."
+---
+
+OpenPOS uses Mongoose to connect to MongoDB. The connection is configured at the top of `server.js`. By default, the file ships with a MongoDB Atlas connection active and the local connection commented out. You must update this before running the app with your own database.
+
+## Database connection options
+
+<Tabs>
+  <Tab title="Local MongoDB">
+    To connect to a MongoDB instance running on your machine, replace the Atlas connection block in `server.js` with the following:
+
+    ```javascript
+    // connect to a local database
+    mongoose.connect('mongodb://localhost/loginapp');
+    ```
+
+    This line already exists in `server.js` — it is commented out by default. Remove the `//` prefix to activate it, and comment out or delete the Atlas connection block below it.
+
+    Before starting the server, make sure `mongod` is running:
+
+    ```bash
+    mongod --dbpath /data/db
+    ```
+
+    Mongoose will connect to the `loginapp` database on your local MongoDB instance. If the database does not exist, MongoDB creates it automatically when the first document is written.
+  </Tab>
+
+  <Tab title="MongoDB Atlas">
+    The default `server.js` connects to MongoDB Atlas using a URI with embedded credentials. The relevant code is:
+
+    ```javascript
+    // or, connect to MongoDB's Atlas (a cloud-hosted MongoDB service)
+    var username = "djk3"
+    var password = "Da72vid87!"
+    var uri = "mongodb://" + username + ":" + password + "@openposcluster-shard-00-00-zb2uf.mongodb.net:27017,openposcluster-shard-00-01-zb2uf.mongodb.net:27017,openposcluster-shard-00-02-zb2uf.mongodb.net:27017/OpenPOS?ssl=true&replicaSet=OpenPOSCluster-shard-0&authSource=admin";
+    mongoose.connect(uri, {
+      useMongoClient: true
+    });
+    var db1 = mongoose.connection;
+    db1.on('error', console.error.bind(console, 'connection error:'));
+    db1.once('open', function () {
+      console.log("Connected to MongoDB Atlas");
+    });
+    ```
+
+    <Warning>
+      The `username` and `password` hardcoded in the default `server.js` belong to the original author's Atlas cluster. Replace them with your own Atlas credentials and cluster hostnames before running the app. Leaving the original credentials in place will cause a connection failure since you do not have access to that cluster.
+    </Warning>
+
+    To use your own Atlas cluster:
+
+    1. Log in to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and create a free cluster.
+    2. Under **Database Access**, create a database user with a username and password.
+    3. Under **Network Access**, add your IP address to the allow list.
+    4. From the **Connect** dialog, choose **Connect your application** and copy the connection string.
+    5. Replace the `username`, `password`, and the three shard hostnames in `server.js` with the values from your connection string.
+  </Tab>
+</Tabs>
+
+## Port configuration
+
+The server port is set near the bottom of `server.js`:
+
+```javascript
+// set the port
+app.set('port', (process.env.PORT || 3000));
+
+// start the server
+app.listen(app.get('port'), function () {
+  console.log('Server running on port ' + app.get('port'));
+});
+```
+
+The server listens on port **3000** by default. You can override this by setting the `PORT` environment variable before starting the server:
+
+```bash
+PORT=8080 node server.js
+```
+
+## Gulp tasks
+
+Running `gulp` (instead of `node server.js` directly) starts two tasks defined in `gulpfile.js`.
+
+### `nodemon` task
+
+Starts `server.js` with nodemon, which watches for file changes and automatically restarts the Node process:
+
+```javascript
+// start the server
+gulp.task('nodemon', function (cb) {
+  var callbackCalled = false;
+  return nodemon({
+    script: './server.js'
+  }).on('start', function () {
+    if (!callbackCalled) {
+      callbackCalled = true;
+      cb();
+    }
+  });
+});
+```
+
+### `browser-sync` task
+
+Depends on `nodemon`. Once the server is up, Browsersync creates a proxy in front of it on port **3010**, with a UI dashboard on port **3011**:
+
+```javascript
+// start browsersync
+var bs1 = browserSync.create("proxy1");
+gulp.task('browser-sync', ['nodemon'], function () {
+  bs1.init({
+    proxy: "http://localhost:3000",
+    port: 3010,
+    ui: {
+      port: 3011
+    },
+    browser: ["google chrome", "safari"],
+    open: false
+  });
+});
+```
+
+### Default task
+
+The default `gulp` task runs `browser-sync` (which in turn runs `nodemon`) and then watches all `.handlebars` view files, reloading connected browsers on any change:
+
+```javascript
+// default task
+gulp.task('default', ['browser-sync'], function () {
+  gulp.watch(["./views/*.handlebars"], reload);
+});
+```
+
+| Port | Service |
+|---|---|
+| 3000 | Express server (direct) |
+| 3010 | Browsersync proxy (live reload) |
+| 3011 | Browsersync UI dashboard |

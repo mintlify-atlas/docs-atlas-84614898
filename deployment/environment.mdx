@@ -1,0 +1,76 @@
+---
+title: "OpenPOS port and environment variable reference"
+description: "Configure the PORT environment variable and understand the three ports OpenPOS uses: the Express server, Browsersync proxy, and Browsersync UI dashboard."
+---
+
+OpenPOS reads its port from an environment variable, with a sensible default for local development. During development, Gulp's Browsersync proxy introduces two additional ports. Understanding these three ports — and when to use each — helps you avoid connection errors and configure hosted deployments correctly.
+
+## Server port
+
+The Express server listens on the port defined by the `PORT` environment variable. If `PORT` is not set, it falls back to `3000`:
+
+```javascript
+app.set('port', (process.env.PORT || 3000));
+```
+
+To change the port, set `PORT` before starting the server:
+
+```bash
+PORT=8080 node server.js
+```
+
+The server logs the active port on startup:
+
+```
+Server running on port 8080
+```
+
+<Tip>
+  For production deployments, start OpenPOS with `node server.js` directly rather than `gulp`. Set the `PORT` environment variable to the port your hosting platform expects (many platforms set `PORT` automatically).
+</Tip>
+
+## Browsersync ports
+
+When you run `gulp`, Browsersync starts alongside the server and exposes two additional ports, both defined in `gulpfile.js`:
+
+```javascript
+bs1.init({
+  proxy: "http://localhost:3000",
+  port: 3010,
+  ui: {
+    port: 3011
+  },
+  browser: ["google chrome", "safari"],
+  open: false
+});
+```
+
+| Port | Purpose |
+| ---- | ------- |
+| `3000` | Express server (direct) |
+| `3010` | Browsersync proxy — use this during development for live reload |
+| `3011` | Browsersync UI — shows connected browsers, network throttling, and sync options |
+
+<Note>
+  The Browsersync UI at `http://localhost:3011` is available whenever you run `gulp`. It lets you inspect connected devices, replay interactions, and configure sync options for multi-device testing.
+</Note>
+
+## Browser auto-open behavior
+
+The `open: false` setting in `gulpfile.js` means Browsersync does **not** automatically open a browser tab when `gulp` starts. Navigate to `http://localhost:3010` manually after running `gulp`.
+
+The `browser` field lists `"google chrome"` and `"safari"` — if you change `open` to `true`, Browsersync will attempt to open both browsers on startup.
+
+```javascript
+browser: ["google chrome", "safari"],
+open: false  // change to true to auto-open on gulp start
+```
+
+## Port summary
+
+| Command | URL | Notes |
+| ------- | --- | ----- |
+| `node server.js` | `http://localhost:3000` | Direct server access, no live reload |
+| `gulp` | `http://localhost:3010` | Browsersync proxy, live reload on template changes |
+| `gulp` (UI) | `http://localhost:3011` | Browsersync dashboard, development only |
+| `PORT=8080 node server.js` | `http://localhost:8080` | Custom port via environment variable |

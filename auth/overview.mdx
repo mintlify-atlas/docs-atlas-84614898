@@ -1,0 +1,30 @@
+---
+title: "How user authentication works in OpenPOS"
+description: "OpenPOS uses username and password authentication with persistent sessions. You need a registered account to access the POS interface and manage orders."
+---
+
+OpenPOS requires a user account to access any part of the point-of-sale interface. The process is straightforward: register an account once, then log in whenever you need access. Your session stays active until you explicitly log out.
+
+## Getting started
+
+There are two steps to gain access to OpenPOS:
+
+1. **Register** — create a new account with your name, email, username, and password.
+2. **Log in** — sign in with your username and password to access the POS dashboard.
+
+<CardGroup cols={2}>
+  <Card title="Create an account" icon="user-plus" href="/auth/registration">
+    Register a new OpenPOS account to get started.
+  </Card>
+  <Card title="Log in" icon="arrow-right-to-bracket" href="/auth/login">
+    Sign in with your username and password.
+  </Card>
+</CardGroup>
+
+## Sessions
+
+Once you log in, your session persists across page loads and browser tabs until you log out. To end your session, click the logout link in the navigation or visit `/users/logout` directly.
+
+<Note>
+  All POS routes require authentication. If you attempt to access the dashboard or any other protected page without being logged in, OpenPOS will redirect you to the login page.
+</Note>

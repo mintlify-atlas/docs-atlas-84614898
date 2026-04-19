@@ -1,0 +1,107 @@
+---
+title: "Take and manage orders using the Order Summary panel"
+description: "Add items to an order, adjust quantities with + and - controls, remove lines, and track the running total in the live Order Summary panel."
+---
+
+The right panel of the OpenPOS interface is the Order Summary. It shows every item currently in the active order, along with per-item quantities, prices, and a running total. All changes to the order are reflected in real time — no page reload is required.
+
+## Adding items to an order
+
+Click any item button in the **Foods**, **Drinks**, or **Other** tabs of the menu panel. Each click calls `addToOrder` with the selected item and a quantity of `1`.
+
+```javascript
+$scope.addToOrder = function (item, qty) {
+    var flag = 0;
+    if ($scope.order.length > 0) {
+        for (var i = 0; i < $scope.order.length; i++) {
+            if (item.id === $scope.order[i].id) {
+                item.qty += qty;
+                flag = 1;
+                break;
+            }
+        }
+        if (flag === 0) {
+            item.qty = 1;
+        }
+        if (item.qty < 2) {
+            $scope.order.push(item);
+        }
+    } else {
+        item.qty = qty;
+        $scope.order.push(item);
+    }
+};
+```
+
+If the item is already in the order, clicking it again increments its quantity. If it is new, it is pushed onto the order array with a quantity of `1`.
+
+## Adjusting quantities
+
+Each line in the Order Summary has two quantity controls:
+
+- **+** (green button) — increases the item quantity by 1 by calling `addToOrder` again
+- **-** (yellow button) — decreases the item quantity by 1 via `removeOneEntity`
+
+```javascript
+$scope.removeOneEntity = function (item) {
+    for (var i = 0; i < $scope.order.length; i++) {
+        if (item.id === $scope.order[i].id) {
+            item.qty -= 1;
+            if (item.qty === 0) {
+                $scope.order.splice(i, 1);
+            }
+        }
+    }
+};
+```
+
+When the quantity reaches `0`, the item is automatically removed from the order array and disappears from the panel.
+
+## Removing an item entirely
+
+Click the trash icon (red button) on any order line to remove that item from the order regardless of its current quantity.
+
+```javascript
+$scope.removeItem = function (item) {
+    for (var i = 0; i < $scope.order.length; i++) {
+        if (item.id === $scope.order[i].id) {
+            $scope.order.splice(i, 1);
+        }
+    }
+};
+```
+
+## Order summary display
+
+Each line in the Order Summary shows:
+
+| Column | Description |
+|--------|-------------|
+| Quantity badge | The current quantity for that line item |
+| Item name | The name of the product |
+| Per-item price | The unit price (yellow label) |
+| Line total | Quantity × unit price (green label) |
+
+The panel footer displays the running order total, calculated by `getTotal`:
+
+```javascript
+$scope.getTotal = function () {
+    var tot = 0;
+    for (var i = 0; i < $scope.order.length; i++) {
+        tot += ($scope.order[i].price * $scope.order[i].qty)
+    }
+    return tot;
+};
+```
+
+## Session order counter
+
+The Order Summary header shows a **Total Orders** badge (`[[totOrders]]`). This counter starts at `0` when you load the page and increments by `1` each time you complete a checkout. It does not track orders across sessions or persist to the database.
+
+<Note>
+  The Total Orders counter resets to `0` every time you reload the page. It reflects only the number of checkouts completed in the current browser session.
+</Note>
+
+<Tip>
+  Before clicking **Checkout**, review the Order Summary to confirm all items, quantities, and the total are correct. Checkout triggers an immediate confirmation dialog and clears the order — there is no edit step after you confirm.
+</Tip>

@@ -1,0 +1,77 @@
+---
+title: "Connect OpenPOS to a MongoDB Atlas cloud cluster"
+description: "Set up a free MongoDB Atlas cluster and update server.js to connect OpenPOS for a fully managed cloud database with no local MongoDB required."
+---
+
+MongoDB Atlas is a fully managed cloud database service for MongoDB. It offers a free sandbox tier (M0) that is suitable for development and small deployments — no credit card required. OpenPOS ships with Atlas as the default connection in `server.js`, so connecting to your own cluster is a matter of replacing the example credentials.
+
+<Warning>
+  The default `server.js` contains example Atlas credentials that belong to the original developer. Replace them with your own credentials before running or deploying OpenPOS.
+</Warning>
+
+## Set up Atlas and connect OpenPOS
+
+<Steps>
+  <Step title="Create a free Atlas account">
+    Go to [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas) and sign up for a free account. Select the **Free** (M0) tier when prompted to choose a cluster size.
+  </Step>
+
+  <Step title="Create a new cluster">
+    In the Atlas dashboard, click **Build a Database** and choose the **Free** shared cluster option. Select your preferred cloud provider and region, then click **Create Cluster**. Cluster creation takes a few minutes.
+  </Step>
+
+  <Step title="Create a database user">
+    Navigate to **Database Access** in the left sidebar and click **Add New Database User**. Choose **Password** authentication, enter a username and a strong password, and grant the user **Read and write to any database** privileges. Save the credentials — you will need them in a later step.
+  </Step>
+
+  <Step title="Whitelist your IP address">
+    Navigate to **Network Access** in the left sidebar and click **Add IP Address**. Add your current IP address (or `0.0.0.0/0` to allow access from anywhere, which is convenient for development but not recommended for production). Click **Confirm**.
+  </Step>
+
+  <Step title="Copy your connection string">
+    Navigate to **Database** in the left sidebar, click **Connect** on your cluster, then choose **Connect your application**. Select **Node.js** as the driver. Copy the connection string — it looks like this:
+
+    ```
+    mongodb://<username>:<password>@<cluster-shard-00-00>:27017,<cluster-shard-00-01>:27017,<cluster-shard-00-02>:27017/<dbname>?ssl=true&replicaSet=<ReplicaSetName>&authSource=admin
+    ```
+
+    Replace `<username>`, `<password>`, the shard hostnames, `<dbname>`, and `<ReplicaSetName>` with the values from your cluster.
+  </Step>
+
+  <Step title="Update server.js with your Atlas URI">
+    Open `server.js` and replace the example credentials with yours:
+
+    ```javascript
+    var username = "<your-atlas-username>"
+    var password = "<your-atlas-password>"
+    var uri = "mongodb://" + username + ":" + password + "@<shard-00-00>:27017,<shard-00-01>:27017,<shard-00-02>:27017/<dbname>?ssl=true&replicaSet=<ReplicaSetName>&authSource=admin";
+    mongoose.connect(uri, {
+      useMongoClient: true
+    });
+    ```
+
+    Save the file and start the server. On a successful connection, the console prints:
+
+    ```
+    Connected to MongoDB Atlas
+    ```
+  </Step>
+</Steps>
+
+## How the Atlas connection works in server.js
+
+OpenPOS registers a one-time `open` event listener on the Mongoose connection. When Atlas accepts the connection, it logs a confirmation message:
+
+```javascript
+var db1 = mongoose.connection;
+db1.on('error', console.error.bind(console, 'connection error:'));
+db1.once('open', function () {
+  console.log("Connected to MongoDB Atlas");
+});
+```
+
+If the connection fails — for example due to wrong credentials or an IP not on the allowlist — the `error` handler prints the error to the console.
+
+<Note>
+  The `useMongoClient: true` option is required for the version of Mongoose used by OpenPOS (4.10.8). Newer versions of Mongoose use different connection option flags.
+</Note>

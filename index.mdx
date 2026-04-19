@@ -1,97 +1,57 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "OpenPOS: Open Source Point-of-Sale System"
+description: "OpenPOS is a browser-based, open source POS system built on the MEAN stack. Manage your menu, take orders, and process checkouts in real time."
 ---
 
-## Setting up
+OpenPOS is an open source, cloud-ready Point-of-Sale system for small businesses and restaurants. Built on the MEAN stack (MongoDB, Express, AngularJS, Node.js), it gives you a fully browser-based POS interface — no native app required. Register an account, populate your menu, and start taking orders in minutes.
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Install dependencies and get OpenPOS running locally in under five minutes.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Menu management" icon="utensils" href="/features/menu-management">
+    Add, organize, and remove menu items across Foods, Drinks, and Other categories.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Order management" icon="cart-shopping" href="/features/order-management">
+    Take orders, adjust quantities, and view live order summaries.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="API reference" icon="code" href="/api/overview">
+    Explore the REST endpoints for products and user authentication.
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## How it works
 
-Everything you need to create world-class documentation.
+OpenPOS runs as a Node.js web server you access through any modern browser. Each user account has its own isolated product catalog stored in MongoDB. The AngularJS frontend communicates with the Express backend over a simple REST API to fetch, add, and remove products.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+<Steps>
+  <Step title="Create an account">
+    Register with a name, email, username, and password. Your credentials are stored securely with bcrypt hashing.
+  </Step>
+  <Step title="Build your menu">
+    Add menu items with names, prices, and categories (Foods, Drinks, Other) using the **Edit Items** tab in the POS interface.
+  </Step>
+  <Step title="Take orders">
+    Click items in the menu panel to add them to the live order summary. Adjust quantities or remove items before checkout.
+  </Step>
+  <Step title="Process checkout">
+    Hit **Checkout** to complete the order. OpenPOS displays the order total and increments your session order count.
+  </Step>
+</Steps>
 
-## Need inspiration?
+## Key features
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<CardGroup cols={2}>
+  <Card title="Multi-user support" icon="users">
+    Each user maintains their own private product catalog. Log in from any browser to access your menu.
+  </Card>
+  <Card title="Real-time updates" icon="bolt">
+    Browsersync keeps the interface in sync across devices during development, and AngularJS updates the order panel instantly.
+  </Card>
+  <Card title="Cloud-ready database" icon="database">
+    Connect to a local MongoDB instance or MongoDB Atlas for fully managed, cloud-hosted data storage.
+  </Card>
+  <Card title="Open source & MIT licensed" icon="lock-open">
+    Freely use, modify, and deploy OpenPOS. Contributions welcome on GitHub.
+  </Card>
+</CardGroup>

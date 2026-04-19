@@ -1,0 +1,51 @@
+---
+title: "OpenPOS: open source MEAN stack point-of-sale system"
+description: "OpenPOS is an open source, MEAN stack Point-of-Sale system built for businesses that need a browser-based, multi-user POS with cloud database support."
+---
+
+OpenPOS is a browser-based Point-of-Sale system built on the MEAN stack — MongoDB, Express.js, AngularJS, and Node.js. It lets multiple users manage their own product catalogs and run sales transactions entirely in the browser, backed by a cloud or local MongoDB database.
+
+## Tech stack
+
+OpenPOS is assembled from a set of well-established open source libraries, each responsible for a distinct layer of the application.
+
+| Layer | Technology | Role |
+|---|---|---|
+| Runtime | Node.js | Server-side JavaScript execution |
+| Web framework | Express.js | HTTP routing and middleware |
+| Frontend | AngularJS | Single-page application and MVC |
+| Database | MongoDB | NoSQL document storage |
+| ODM | Mongoose | Schema modeling and query building |
+| Authentication | Passport.js | Username/password login strategy |
+| Build tooling | Gulp | Task automation and process management |
+| Dev server | Browsersync | Live reload and multi-device sync |
+| Templating | Handlebars.js | Server-side HTML rendering |
+
+## Key capabilities
+
+- **Multi-user** — each user account maintains its own isolated product catalog stored in MongoDB.
+- **Browser-based** — the POS interface runs entirely in the browser with no native app required.
+- **Cloud database support** — connects to a local MongoDB instance or MongoDB Atlas out of the box.
+- **Live reload development** — Gulp and Browsersync watch for file changes and reload connected browsers automatically.
+- **Session-based authentication** — Passport.js handles registration, login, and session management with bcrypt password hashing.
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Clone the repo, install dependencies, and run OpenPOS in a few minutes.
+  </Card>
+  <Card title="Core features" icon="cash-register" href="/features/menu-management">
+    Explore menu management, order management, and checkout.
+  </Card>
+  <Card title="Authentication" icon="lock" href="/auth/overview">
+    Learn how Passport.js handles user registration, login, and sessions.
+  </Card>
+  <Card title="API reference" icon="code" href="/api/overview">
+    Browse the product and user endpoints exposed by the Express server.
+  </Card>
+</CardGroup>
+
+<Note>
+  OpenPOS is an open source project released under the MIT License. You can view the source, report issues, and contribute at [github.com/kimdj/OpenPOS](https://github.com/kimdj/OpenPOS).
+</Note>

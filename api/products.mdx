@@ -1,0 +1,138 @@
+---
+title: "Products API — GET, POST, DELETE /productlist"
+description: "Reference for the three product REST endpoints: GET to list all products for the current user, POST to create, and DELETE /productlist/:id to remove."
+---
+
+The `/productlist` endpoints let you read, create, and delete products (menu items) in the OpenPOS database. All three endpoints require an active session — log in via `POST /users/login` before calling them.
+
+<Note>
+  The product schema is defined in `server.js` with four fields: `name`, `price`, `category`, and `user`. Products are stored in the `products` collection in MongoDB.
+</Note>
+
+---
+
+## GET /productlist
+
+Returns all products belonging to the currently authenticated user.
+
+### Authentication
+
+Requires an active session cookie (`connect.sid`).
+
+### Response
+
+A JSON array of product objects. An empty array is returned if the user has no products.
+
+<ResponseField name="_id" type="string" required>
+  MongoDB ObjectId of the product, assigned automatically on creation.
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  Name of the product (menu item).
+</ResponseField>
+
+<ResponseField name="price" type="string" required>
+  Price of the product as a decimal string (for example, `"3.50"`).
+</ResponseField>
+
+<ResponseField name="category" type="string" required>
+  Product category. One of `"Foods"`, `"Drinks"`, or `"Other"`.
+</ResponseField>
+
+<ResponseField name="user" type="string" required>
+  Username of the owner who created this product.
+</ResponseField>
+
+### Example response
+
+```json
+[
+  {
+    "_id": "64a1b2c3d4e5f6789012345",
+    "name": "Coffee",
+    "price": "3.50",
+    "category": "Drinks",
+    "user": "alice"
+  }
+]
+```
+
+---
+
+## POST /productlist
+
+Creates a new product in the database for the current user.
+
+### Authentication
+
+Requires an active session cookie (`connect.sid`).
+
+### Request body
+
+Send a JSON object with the following fields:
+
+<ParamField body="name" type="string" required>
+  Name of the product. Maximum 36 characters.
+</ParamField>
+
+<ParamField body="price" type="string" required>
+  Price as a decimal string (for example, `"9.99"`).
+</ParamField>
+
+<ParamField body="category" type="string" required>
+  Product category. Must be one of `"Foods"`, `"Drinks"`, or `"Other"`.
+</ParamField>
+
+<ParamField body="user" type="string" required>
+  The username of the owner. The AngularJS frontend sets this automatically from `$scope.uname`. When calling the API directly, pass the authenticated user's username.
+</ParamField>
+
+### Response
+
+A JSON object representing the newly created product, including the MongoDB-assigned `_id`.
+
+### Example
+
+```bash
+curl -X POST http://localhost:3000/productlist \
+  -H "Content-Type: application/json" \
+  -b "connect.sid=<your-session-cookie>" \
+  -d '{"name":"Espresso","price":"2.50","category":"Drinks","user":"alice"}'
+```
+
+```json
+{
+  "_id": "64a1b2c3d4e5f6789012346",
+  "name": "Espresso",
+  "price": "2.50",
+  "category": "Drinks",
+  "user": "alice"
+}
+```
+
+---
+
+## DELETE /productlist/:id
+
+Removes a product from the database by its MongoDB ObjectId.
+
+### Authentication
+
+Requires an active session cookie (`connect.sid`).
+
+### Path parameter
+
+<ParamField path="id" type="string" required>
+  The `_id` of the product to delete. Use the value returned by `GET /productlist` or `POST /productlist`.
+</ParamField>
+
+### Response
+
+A JSON object containing the result of the MongoDB remove operation.
+
+### Example
+
+```bash
+curl -X DELETE http://localhost:3000/productlist/64a1b2c3d4e5f6789012345 \
+  -b "connect.sid=<your-session-cookie>"
+```

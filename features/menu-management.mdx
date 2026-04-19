@@ -1,0 +1,91 @@
+---
+title: "Add and manage menu items in your OpenPOS catalog"
+description: "Add, categorize, and remove menu items in your OpenPOS interface. Each user account maintains its own isolated product catalog stored in MongoDB."
+---
+
+The menu panel is the left half of the OpenPOS interface. It organizes your items into three category tabs — **Foods**, **Drinks**, and **Other** — and provides an **Edit Items** tab where you can add or remove items from your catalog.
+
+## Menu panel tabs
+
+The menu panel contains four tabs:
+
+- **Foods** — displays all food items as blue buttons
+- **Drinks** — displays all drink items as blue buttons
+- **Other** — displays miscellaneous items as yellow buttons
+- **Edit Items** — shows the item management table for adding and removing products
+
+Clicking any item button in the Foods, Drinks, or Other tabs immediately adds that item to the current order in the right panel.
+
+## How to add a menu item
+
+<Steps>
+  <Step title="Open the Edit Items tab">
+    Click the **Edit Items** tab in the menu panel. The item management table appears with input fields for Name, Price, and Category.
+  </Step>
+  <Step title="Enter the item name">
+    Type the item name in the **Name** field. The name must be 36 characters or fewer.
+  </Step>
+  <Step title="Enter the item price">
+    Type the price in the **Price** field using a valid currency format, such as `9.99` or `1,299.00`. Do not include a currency symbol.
+  </Step>
+  <Step title="Select a category">
+    Choose **Foods**, **Drinks**, or **Other** from the **Category** dropdown. The dropdown defaults to **Foods**.
+  </Step>
+  <Step title="Submit the item">
+    Click **Add Item** or press Enter. The item is saved to MongoDB and immediately appears as a button in the corresponding category tab.
+  </Step>
+</Steps>
+
+<Note>
+  Item names are limited to **36 characters**. Prices must match a valid currency format — whole numbers (`10`), decimals (`9.99`), or comma-separated thousands (`1,299.00`) are all accepted. A price like `9.9` or `abc` will trigger a validation error.
+</Note>
+
+## Validation rules
+
+The `addProduct` function in `poscontroller.js` enforces two rules before saving an item:
+
+```javascript
+$scope.addProduct = function () {
+    var nameStr = $scope.product.name;
+    var priceStr = $scope.product.price;
+    var priceRegex = /^((\d{0,3}(,\d{3})+)|\d+)(\.\d{2})?$/; // allow valid currency values only
+
+    if (nameStr.length > 36) {
+        alert("Item name can be a maximum of 36 characters long.");
+    } else if (!priceRegex.test(priceStr)) {
+        alert("Please enter a valid price.");
+    } else {
+        $scope.product.category = $scope.selectedCategory;
+        $scope.product.user = $scope.uname;
+        console.log($scope.product);
+        $http.post('/productlist', $scope.product).success(function (response) {
+            console.log('addProduct successful!');
+            refresh(); // refresh the Menu Panel
+        });
+    }
+};
+```
+
+If validation fails, a browser alert describes the problem and no data is sent to the server.
+
+## How to remove a menu item
+
+In the **Edit Items** tab, the table lists every item in your catalog with its name, price, and category. Click the **Remove** button in the row for the item you want to delete.
+
+The `remove` function sends a DELETE request to the server and then refreshes the menu panel:
+
+```javascript
+$scope.remove = function (id) {
+    console.log(id);
+    $http.delete('/productlist/' + id).success(function (response) {
+        console.log('remove successful!');
+        refresh(); // refresh the Menu Panel
+    });
+};
+```
+
+The item is permanently deleted from MongoDB and its button disappears from the menu immediately.
+
+## Per-user catalog isolation
+
+Each OpenPOS account maintains its own product catalog. When items are saved, the currently logged-in username is stored alongside the item data (`$scope.product.user = $scope.uname`). The server filters the product list by username on every load, so items added under one account are never visible to other accounts.

@@ -1,0 +1,99 @@
+---
+title: "Users API — register, login, and logout endpoints"
+description: "Reference for the OpenPOS /users endpoints: register a new account, authenticate with username and password, and destroy the session to log out."
+---
+
+The `/users` endpoints handle account creation, authentication, and session teardown. These routes are form-based and return HTML pages or HTTP redirects — not JSON. A successful login creates the session cookie required by the [Products API](/api/products).
+
+<Note>
+  All user routes return HTML or redirect responses, not JSON. If you need programmatic authentication, submit the login form fields as `application/x-www-form-urlencoded` and capture the resulting `connect.sid` cookie.
+</Note>
+
+---
+
+## GET /users/register
+
+Returns the HTML registration form page.
+
+No request body or authentication required.
+
+---
+
+## POST /users/register
+
+Creates a new user account. The server validates all fields before saving. Passwords are hashed with bcrypt before storage.
+
+### Request body
+
+Submit as `application/x-www-form-urlencoded` (standard HTML form encoding).
+
+<ParamField body="name" type="string" required>
+  Full name of the user.
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  Valid email address. The server rejects malformed email values.
+</ParamField>
+
+<ParamField body="username" type="string" required>
+  Username used to log in.
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  Password for the account.
+</ParamField>
+
+<ParamField body="password2" type="string" required>
+  Password confirmation. Must exactly match `password`.
+</ParamField>
+
+### Responses
+
+| Outcome | Response |
+| ------- | -------- |
+| Success | Redirects to `/users/login` with a `success_msg` flash: `"You are registered and can now login"` |
+| Validation error | Re-renders the registration form with inline error messages |
+
+---
+
+## GET /users/login
+
+Returns the HTML login form page.
+
+No request body or authentication required.
+
+---
+
+## POST /users/login
+
+Authenticates the user with a username and password using Passport.js local strategy. On success, the server creates a session and sets the `connect.sid` cookie.
+
+### Request body
+
+Submit as `application/x-www-form-urlencoded` (standard HTML form encoding).
+
+<ParamField body="username" type="string" required>
+  The username registered via `POST /users/register`.
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  The account password.
+</ParamField>
+
+### Responses
+
+| Outcome | Response |
+| ------- | -------- |
+| Success | Redirects to `/` (the POS dashboard) and sets the `connect.sid` session cookie |
+| Unknown user | Redirects to `/users/login` with an error flash: `"Unknown User"` |
+| Wrong password | Redirects to `/users/login` with an error flash: `"Invalid password"` |
+
+---
+
+## GET /users/logout
+
+Destroys the current session and redirects to the login page. No request body is required.
+
+### Response
+
+Redirects to `/users/login` with a `success_msg` flash: `"You are logged out"`. The `connect.sid` cookie is invalidated.

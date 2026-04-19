@@ -1,0 +1,68 @@
+{
+  "projectType": "saas",
+  "projectName": "OpenPOS",
+  "projectDescription": "OpenPOS is an open source, cloud-based Point-of-Sale system built on the MEAN stack, enabling businesses to manage products, take orders, and process checkouts through a browser-based interface.",
+  "theme": "almond",
+  "primaryColor": "#848c8e",
+  "lightColor": "#11161e",
+  "darkColor": "#cfd0d2",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart", "configuration"]
+          },
+          {
+            "group": "Core Features",
+            "pages": ["features/menu-management", "features/order-management", "features/checkout"]
+          },
+          {
+            "group": "Authentication",
+            "pages": ["auth/overview", "auth/registration", "auth/login"]
+          },
+          {
+            "group": "Deployment",
+            "pages": ["deployment/local", "deployment/mongodb-atlas", "deployment/environment"]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "API Overview",
+            "pages": ["api/overview"]
+          },
+          {
+            "group": "Endpoints",
+            "pages": ["api/products", "api/users"]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Browser-based POS interface with tabbed menu categories (Foods, Drinks, Other)",
+    "Real-time order management with quantity adjustment and order summary",
+    "Product CRUD operations backed by MongoDB",
+    "User authentication with Passport.js local strategy and bcrypt password hashing",
+    "Multi-user support with per-user product inventories",
+    "Gulp-powered development workflow with Browsersync live reload",
+    "Handlebars.js server-side templating with AngularJS frontend",
+    "Cloud database support via MongoDB Atlas"
+  ],
+  "publicApiSurface": [
+    "GET /productlist — fetch all products for the authenticated user",
+    "POST /productlist — add a new product to the user's inventory",
+    "DELETE /productlist/:id — remove a product by ID",
+    "GET / — main POS dashboard (requires authentication)",
+    "GET /users/login — login page",
+    "POST /users/login — authenticate with username and password",
+    "GET /users/register — registration page",
+    "POST /users/register — create a new user account",
+    "GET /users/logout — log out and redirect to login"
+  ]
+}

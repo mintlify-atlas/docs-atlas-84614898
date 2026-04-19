@@ -1,0 +1,38 @@
+---
+title: "Sign in and out of OpenPOS with your credentials"
+description: "Sign in to OpenPOS with your username and password to reach the POS dashboard. Learn how to log in, handle login errors, and log out when you're done."
+---
+
+Once you have a registered account, you can log in to OpenPOS with your username and password. A successful login takes you directly to the POS dashboard.
+
+## How to log in
+
+<Steps>
+  <Step title="Open the login page">
+    Navigate to `/users/login` in your browser.
+  </Step>
+  <Step title="Enter your credentials">
+    Type your **Username** and **Password** into the form fields.
+  </Step>
+  <Step title="Submit the form">
+    Click **Submit** to authenticate.
+  </Step>
+  <Step title="Access the dashboard">
+    On success, you are redirected to the POS dashboard (`/`) and your session begins.
+  </Step>
+</Steps>
+
+## Login errors
+
+If authentication fails, you are redirected back to `/users/login` with one of the following error messages:
+
+- **"Unknown User"** — no account exists for the username you entered. Double-check your username or [create a new account](/auth/registration).
+- **"Invalid password"** — the username was found but the password did not match. Re-enter your password carefully.
+
+<Tip>
+  OpenPOS does not currently have a password reset feature. If you forget your credentials and cannot log in, you will need to create a new account.
+</Tip>
+
+## How to log out
+
+To end your session, click the logout link in the navigation bar or go directly to `/users/logout`. OpenPOS will clear your session and redirect you to the login page.
